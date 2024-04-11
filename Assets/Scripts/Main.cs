@@ -9,8 +9,7 @@ public class Main : MonoBehaviour
 {
     public enum DataReceiveMode {
         keyboard,
-        serialPort,
-        mobile
+        serialPort
     }
     public DataReceiveMode Mode;
     public enum Stroke {

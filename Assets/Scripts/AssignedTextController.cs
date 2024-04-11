@@ -14,7 +14,7 @@ public class AssignedTextController : MonoBehaviour
     public Study1Recorder study1Recorder;
     public Text assignedText, countDownText, breakText;
     public bool hasGivenWord = false;
-    public GameObject linePrefab, FootDotPrefab;
+    public GameObject linePrefab, FootDotPrefab, CirclePrefab;
     public Transform LineContainer, DotContainer;
     public List<string> incorrectTrials = new List<string>();
     public enum State { start, study, breaked, finished };
@@ -158,15 +158,21 @@ public class AssignedTextController : MonoBehaviour
         lineObject.SetActive(true);
     }
 
-    void DrawDot(int pos, int order = 0) {      
-        GameObject dotObject = Instantiate<GameObject>(FootDotPrefab, DotContainer);
-            
-        // set the position of the dot from the dotCoordinates
-        dotObject.transform.localPosition = dotCoordinates[pos] + hasDotIcon[pos] * new Vector3(dotOffset, 0f, 0f);
-        hasDotIcon[pos]++;
+    void DrawDot(int pos, int order = 0) {   
+        if (hasDotIcon[pos] == 1 || order == 2)
+        {
+            GameObject circleObject = Instantiate<GameObject>(CirclePrefab, DotContainer);
+            circleObject.transform.localPosition = dotCoordinates[pos];
+            hasDotIcon[pos]++;
+        }
+        else if (hasDotIcon[pos] == 0)
+        {
+            GameObject dotObject = Instantiate<GameObject>(FootDotPrefab, DotContainer);
 
-        // get the text component of the dot
-        dotObject.GetComponentInChildren<Text>().text = order.ToString();
+            // set the position of the dot from the dotCoordinates
+            dotObject.transform.localPosition = dotCoordinates[pos];
+            hasDotIcon[pos]++;
+        }
     }
 
     void ClearAllChildren(Transform parent) {

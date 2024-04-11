@@ -15,7 +15,6 @@ public class DataReceiver : MonoBehaviour
     OneEuroFilter OEfilter3 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
     OneEuroFilter OEfilter4 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
     public Text studyModeText;
-    public Button btn1, btn2, btn3, btn4;
     private string filePath;
     // public static Dictionary<string, string> mp = new Dictionary<string, string>(); // change the alphacode to alphabet
     // Start is called before the first frame update
@@ -28,13 +27,6 @@ public class DataReceiver : MonoBehaviour
             // bind the SG receiver with the tag
             sgLeftFoot = GameObject.FindGameObjectWithTag("leftFootData").GetComponent<SGReceiver>();
             sgRightFoot = GameObject.FindGameObjectWithTag("rightFootData").GetComponent<SGReceiver>();
-        }
-        if (Main.Mode == Main.DataReceiveMode.mobile) {
-            // button listener
-            btn1.onClick.AddListener(delegate { CheckButtonClicked(1); });
-            btn2.onClick.AddListener(delegate { CheckButtonClicked(2); });
-            btn3.onClick.AddListener(delegate { CheckButtonClicked(3); });
-            btn4.onClick.AddListener(delegate { CheckButtonClicked(4); });     
         }
 
         if (Main.studyMode == Main.StudyMode.study1)

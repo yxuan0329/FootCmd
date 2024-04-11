@@ -15,9 +15,9 @@ public class ChartTableManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        leftFront.AddData(DataReceiver.footDataList[1]);
-        leftRear.AddData(DataReceiver.footDataList[2]);
-        rightFront.AddData(DataReceiver.footDataList[3]);
-        rightRear.AddData(DataReceiver.footDataList[4]);
+        leftFront.AddData(DataReceiver.footDataList[1], 600);
+        leftRear.AddData(DataReceiver.footDataList[2], 600);
+        rightFront.AddData(DataReceiver.footDataList[3], 600);
+        rightRear.AddData(DataReceiver.footDataList[4], 600);
     }
 }
