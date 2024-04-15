@@ -13,7 +13,7 @@ public class FootTapController : MonoBehaviour
     public Canvas footIcon;
     public GameObject leftFore, leftRear, rightFore, rightRear; // icon for foot
     public GameObject background, CirclePrefab, FootDotPrefab;
-    public Transform FootDotContainer, LineContainer;
+    public Transform FootDotContainer;
     public Text enteredText, alphaCodes, state, clockTimer, hitRateText, correctionText;
     public DataReceiver DataReceiver;
     public Text countDownText;
@@ -28,7 +28,6 @@ public class FootTapController : MonoBehaviour
     private bool LeftForeisTapping = false, LeftRearisTapping = false, RightForeisTapping = false, RightRearisTapping = false;
     private int[] hasFootIcon = new int[6]; // 0: no dot, 1: has dot-1, 2: has dot-2
     private int[,] hasArrowIcon = new int[6, 6]; // 0: no arrow, 1: has arrow-1, 2: has arrow-2
-    private List<int> hitRateList = new List<int>();
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
     private bool isSynchronous = false;
     public enum State {
@@ -38,12 +37,8 @@ public class FootTapController : MonoBehaviour
         Recognize
     }
     private State currState;
-
     private Vector3[] dotCoordinates = new Vector3[6];
-    private Vector3[] dotOffsets = new Vector3[9];
     private int TapNumber = 0;
-    private int hitCount = 0, missCount = 0;
-    private float hitRate = 0.0f;
     
     // Start is called before the first frame update
     void Start()
@@ -54,18 +49,10 @@ public class FootTapController : MonoBehaviour
         // initialize the dot value and offset
         ResetDotsandArrows();
         InitDotCoordinates(ref dotCoordinates);
-        CloseFoot();
-
-        countDownText.gameObject.SetActive(true);
-        canvas.gameObject.SetActive(true);
+        footIcon.gameObject.SetActive(false);
+        canvas.gameObject.SetActive(false);
         assignedTextController.state = AssignedTextController.State.study;
-        footIcon.gameObject.SetActive(false);
         currState = State.Start;
-    }
-
-    void CloseFoot()
-    {
-        footIcon.gameObject.SetActive(false);
     }
 
     void ResetDotsandArrows() {
@@ -83,16 +70,6 @@ public class FootTapController : MonoBehaviour
         dotCoordinates[2] = new Vector3(0f, -100f, 0f);
         dotCoordinates[3] = new Vector3(100f, 0f, 0f);
         dotCoordinates[4] = new Vector3(100f, -100f, 0f);
-
-        // set the four offset of the dot
-        dotOffsets[1] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[2] = new Vector3(0f, -50f, 0f);
-        dotOffsets[3] = new Vector3(50f, 0f, 0f);
-        dotOffsets[4] = new Vector3(0f, -50f, 0f);
-        dotOffsets[5] = new Vector3(0f, 50f, 0f);
-        dotOffsets[6] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[7] = new Vector3(0f, 50f, 0f); 
-        dotOffsets[8] = new Vector3(50f, 0f, 0f);
     }
 
     // Update is called once per frame
@@ -125,7 +102,6 @@ public class FootTapController : MonoBehaviour
                 break;
         }
 
-        hitRateText.text = hitRate.ToString("F2") + "%";
         clockTimer.text = recogTimer.ToString("F3"); // 3 digits
         Timer += Time.deltaTime;
         currClock = Timer;
@@ -133,16 +109,12 @@ public class FootTapController : MonoBehaviour
         // if press r, then go to idle state
         if (Input.GetKeyDown(KeyCode.R)) {
             ChangeState(State.Idle);
-            hitCount = 0;
-            missCount = 0;
-            hitRate = 0.0f;
         }
     }
 
     void UpdateStartState() 
     {
         state.text = "Start";
-        canvas.gameObject.SetActive(false);
     }
 
     void UpdateIdleState() 
@@ -161,7 +133,6 @@ public class FootTapController : MonoBehaviour
         alphaCode = "";
         
         ClearAllChildren(FootDotContainer);
-        ClearAllChildren(LineContainer);
         enteredText.text = "";
         isSynchronous = false;
 
@@ -184,7 +155,7 @@ public class FootTapController : MonoBehaviour
         // if there is a tapping, change the state to tapping
         TappingIconChecker();
         
-        // if there is a tapping then wait for 50 frames, then change the state to recognize
+        // if there is no more tapping in 1 second, then change the state to recognize
         if (recogTimer >= 1.0f){
             ChangeState(State.Recognize);
         }
@@ -203,7 +174,7 @@ public class FootTapController : MonoBehaviour
             ShowCorrectionText("X");
         }
         
-        // stay 1 secxondin this state
+        // stay 1 second in this state
         recogTimer += Time.deltaTime;
         if (recogTimer >= 1.5f) {
             // add the alpha code to the users actions
@@ -213,23 +184,15 @@ public class FootTapController : MonoBehaviour
             
             // if entered text == assigned text, then hasGivenWord = false
             if (isCorrect(alphaCode)) {
-                hitRateList.Add(1);
-                hitCount++;
                 assignedTextController.correctedCount++;
             }
             else 
             {
-                hitRateList.Add(0);
-                missCount++;
-
                 // add the wrong word into the wrong word list
                 assignedTextController.incorrectTrials.Add(assignedTextController.assignedText.text);
             }
             // turn to next given word
             assignedTextController.hasGivenWord = false;
-            
-            // calculate the hit rate
-            hitRate = (float)hitCount / (float)(hitCount + missCount) * 100.0f;
             ChangeState(State.Idle);
         }
     }
@@ -381,8 +344,8 @@ public class FootTapController : MonoBehaviour
         yield return new WaitForSeconds(1f);
         countDownText.gameObject.SetActive(false);
         canvas.gameObject.SetActive(true);
-        assignedTextController.state = AssignedTextController.State.study;
         footIcon.gameObject.SetActive(true);
+        assignedTextController.state = AssignedTextController.State.study;
         ChangeState(State.Idle);
     }
 }
