@@ -159,34 +159,33 @@ public class AssignedTextController : MonoBehaviour
     }
 
     void DoIncorrectTrials() {
-        // Debug.Log("Incorrect Trials: " + incorrectTrials.Count);
         // pop first element from incorrectTrials
         assignedAplhaCode = incorrectTrials[0];
         assignedDotPosition = incorrectTrials[0];
         assignedText.text = assignedAplhaCode; 
         incorrectTrials.RemoveAt(0);
 
-                    // clear all the children in the container
-            ClearAllChildren(DotContainer);
+        // clear all the children in the container
+        ClearAllChildren(DotContainer);
 
-            int order = 0;
-            int pos = 1, lastPos = 1;
-            for (int i=0; i<assignedDotPosition.Length; i++)
+        int order = 0;
+        int pos = 1, lastPos = 1;
+        for (int i=0; i<assignedDotPosition.Length; i++)
+        {
+            if (char.IsLetter(assignedDotPosition[i]))
             {
-                if (char.IsLetter(assignedDotPosition[i]))
-                {
-                    DrawDot((int)assignedDotPosition[i] - 96, order);
-                    pos = (int)assignedDotPosition[i] - 96;
-                }
-                else
-                {
-                    DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
-                    pos = int.Parse(assignedDotPosition[i].ToString());
-                }
+                DrawDot((int)assignedDotPosition[i] - 96, order);
+                pos = (int)assignedDotPosition[i] - 96;
+            }
+            else
+            {
+                DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
+                pos = int.Parse(assignedDotPosition[i].ToString());
+            }
 
-                lastPos = pos;
-            }              
-            hasGivenWord = true; 
+            lastPos = pos;
+        }              
+        hasGivenWord = true; 
     }
 
     void StudyBreak() {
