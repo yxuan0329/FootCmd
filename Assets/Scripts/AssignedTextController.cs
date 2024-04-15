@@ -15,13 +15,11 @@ public class AssignedTextController : MonoBehaviour
     public Text assignedText, countDownText, breakText;
     public bool hasGivenWord = false;
     public GameObject linePrefab, FootDotPrefab, CirclePrefab;
-    public Transform LineContainer, DotContainer;
+    public Transform DotContainer;
     public List<string> incorrectTrials = new List<string>();
     public enum State { start, study, breaked, finished };
     public State state = State.start;
     private Vector3[] dotCoordinates = new Vector3[6];
-    private int sortingOrder = 0;
-    private float lineWidth = 0.65f, dotOffset = 25f;
     private int[] hasDotIcon = new int[6];  // 0 means no dot, 1 means has 1 dot, 2 means has 2 dots
     private int dataLineIndex = 0;
     private string[] lines;
@@ -137,27 +135,6 @@ public class AssignedTextController : MonoBehaviour
         state = newState;
     }
 
-    void DrawLine(int start, int end) {
-        // draw gradient line in line renderer
-        GameObject lineObject = Instantiate<GameObject>(linePrefab, LineContainer);
-        LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
-
-        lineRenderer.SetPosition(0, dotCoordinates[start]);
-        lineRenderer.SetPosition(1, dotCoordinates[end]);
-        
-        lineRenderer.sortingOrder = sortingOrder;
-        sortingOrder++;
-
-        lineRenderer.startColor = Color.black;
-        lineRenderer.endColor = Color.black;
-        
-        // width
-        lineRenderer.startWidth = lineWidth;
-        lineRenderer.endWidth = lineWidth;
-
-        lineObject.SetActive(true);
-    }
-
     void DrawDot(int pos, int order = 0) {   
         if (hasDotIcon[pos] == 1 || order == 2)
         {
@@ -224,7 +201,6 @@ public class AssignedTextController : MonoBehaviour
         canvas.gameObject.SetActive(false);
         countDownText.text = "Finished!";
         countDownText.gameObject.SetActive(true);
-        // EditorApplication.isPlaying = false;
     }
 
     IEnumerator CountdownCoroutine()

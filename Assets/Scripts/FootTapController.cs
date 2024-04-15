@@ -7,13 +7,12 @@ using System.IO;
 
 public class FootTapController : MonoBehaviour
 {
-    public Main main;
     public Study1Recorder study1Recorder;
     public AssignedTextController assignedTextController;
     public Canvas canvas;
     public Canvas footIcon;
     public GameObject leftFore, leftRear, rightFore, rightRear; // icon for foot
-    public GameObject background, CirclePrefab, FootDotPrefab, linePrefab;
+    public GameObject background, CirclePrefab, FootDotPrefab;
     public Transform FootDotContainer, LineContainer;
     public Text enteredText, alphaCodes, state, clockTimer, hitRateText, correctionText;
     public DataReceiver DataReceiver;
@@ -31,7 +30,7 @@ public class FootTapController : MonoBehaviour
     private int[,] hasArrowIcon = new int[6, 6]; // 0: no arrow, 1: has arrow-1, 2: has arrow-2
     private List<int> hitRateList = new List<int>();
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
-    private bool isSynchronous = false, countHit = false;
+    private bool isSynchronous = false;
     public enum State {
         Start,
         Idle,
@@ -42,8 +41,7 @@ public class FootTapController : MonoBehaviour
 
     private Vector3[] dotCoordinates = new Vector3[6];
     private Vector3[] dotOffsets = new Vector3[9];
-    private int sortingOrder = 0, TapNumber = 0;
-    private float lineWidth = 0.65f, dotOffset = 25f;
+    private int TapNumber = 0;
     private int hitCount = 0, missCount = 0;
     private float hitRate = 0.0f;
     
@@ -129,7 +127,6 @@ public class FootTapController : MonoBehaviour
 
         hitRateText.text = hitRate.ToString("F2") + "%";
         clockTimer.text = recogTimer.ToString("F3"); // 3 digits
-        // syncTimer.text = (currClock - lastClock).ToString();
         Timer += Time.deltaTime;
         currClock = Timer;
 
@@ -145,7 +142,6 @@ public class FootTapController : MonoBehaviour
     void UpdateStartState() 
     {
         state.text = "Start";
-        // close the canvas
         canvas.gameObject.SetActive(false);
     }
 
@@ -330,14 +326,14 @@ public class FootTapController : MonoBehaviour
         if (TapNumber == 2) 
         {
             circleObject = Instantiate<GameObject>(CirclePrefab, FootDotContainer);
-            circleObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
+            circleObject.transform.localPosition = dotCoordinates[curr];
             hasFootIcon[curr]++;
             circleObject.SetActive(true);
         }
         else if (TapNumber == 1) 
         {
             dotObject = Instantiate<GameObject>(FootDotPrefab, FootDotContainer);
-            dotObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
+            dotObject.transform.localPosition = dotCoordinates[curr]; 
             hasFootIcon[curr]++;
             dotObject.SetActive(true);
         }   
