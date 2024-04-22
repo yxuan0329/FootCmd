@@ -14,7 +14,7 @@ public class AssignedTextController : MonoBehaviour
     public Study1Recorder study1Recorder;
     public Text assignedText, countDownText, breakText;
     public bool hasGivenWord = false;
-    public GameObject linePrefab, FootDotPrefab, CirclePrefab;
+    public GameObject FootDotPrefab, CirclePrefab;
     public Transform DotContainer;
     public List<string> incorrectTrials = new List<string>();
     public enum State { start, study, breaked, finished };

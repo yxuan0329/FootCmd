@@ -5,7 +5,6 @@ using UnityEngine;
 public class ChartTableManager : MonoBehaviour
 {
     public ChartManager leftFront, leftRear, rightFront, rightRear;
-    public int a, b, c, d;
     // Start is called before the first frame update
     void Start()
     {

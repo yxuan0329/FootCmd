@@ -12,14 +12,6 @@ public class Main : MonoBehaviour
         serialPort
     }
     public DataReceiveMode Mode;
-    public enum Stroke {
-        synchronous,
-        asynchronousTwoStep,
-        asynchronousThreeStep,
-        asynchronousAlphabet,
-        study1
-    }
-    public Stroke stroke;
     public string userName = "user0";
     public enum StudyMode {
         practice1,
