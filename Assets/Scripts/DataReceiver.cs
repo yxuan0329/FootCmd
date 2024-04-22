@@ -16,13 +16,10 @@ public class DataReceiver : MonoBehaviour
     OneEuroFilter OEfilter4 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
     public Text studyModeText;
     private string filePath;
-    // public static Dictionary<string, string> mp = new Dictionary<string, string>(); // change the alphacode to alphabet
+
     // Start is called before the first frame update
     void Start()
     {      
-        // add data into mp, according to th stroke mode
-        // LoadDictionaryFromStroke();
-
         if (Main.Mode == Main.DataReceiveMode.serialPort) {
             // bind the SG receiver with the tag
             sgLeftFoot = GameObject.FindGameObjectWithTag("leftFootData").GetComponent<SGReceiver>();
@@ -31,11 +28,11 @@ public class DataReceiver : MonoBehaviour
 
         if (Main.studyMode == Main.StudyMode.study1)
         {
-            filePath = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/"+ Main.userName + "_frame.csv";
+            filePath = Main.dataWritePath + Main.userName + "/"+ Main.userName + "_frame.csv";
         }
         else
         {
-            filePath = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/"+ Main.userName + "_frame_practice.csv";
+            filePath = Main.dataWritePath + Main.userName + "/"+ Main.userName + "_frame_practice.csv";
         }
     }
 
@@ -63,7 +60,8 @@ public class DataReceiver : MonoBehaviour
             footDataList[index] = Input.GetKeyDown(key) ? 1000 : 0;
         }
 
-        if (Main.Mode == Main.DataReceiveMode.serialPort) {
+        if (Main.Mode == Main.DataReceiveMode.serialPort)
+        {
             footDataList[1] = OEfilter1.Filter((float)sgLeftFoot.footSGdata[0]);
             footDataList[2] = OEfilter2.Filter((float)sgLeftFoot.footSGdata[1]);
             footDataList[3] = OEfilter3.Filter((float)sgRightFoot.footSGdata[0]);
@@ -76,32 +74,5 @@ public class DataReceiver : MonoBehaviour
             SetFootData(KeyCode.Keypad9, 3);
             SetFootData(KeyCode.Keypad3, 4);
         }
-    }
-    private void LoadDictionaryFromStroke()
-    {
-        // switch (Main.stroke) {
-        //     case Main.Stroke.synchronous:
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/syncList.txt", ref mp);
-        //         break;
-        //     case Main.Stroke.asynchronousTwoStep:
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/asyncTwoStepList.txt", ref mp);
-        //         break;
-        //     case Main.Stroke.asynchronousThreeStep:
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/asyncThreeStepList.txt", ref mp);
-        //         break;
-        //     case Main.Stroke.asynchronousAlphabet:
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/alphabetList.txt", ref mp);
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/numberList.txt", ref mp);
-        //         break;
-        //     case Main.Stroke.study1:
-        //         FileUtils.CreateDictionaryFromFile("Assets/Files/strokeList.txt", ref mp);
-        //         break;
-        // }
-        // Debug.Log("mp.Count: " + mp.Count);
-    }
-    
-    private void CheckButtonClicked(int footNumber) 
-    {
-        DataReceiver.footDataList[footNumber] = 1000;
     }
 }

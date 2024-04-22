@@ -7,20 +7,19 @@ using System.IO;
 
 public class FootTapController : MonoBehaviour
 {
-    public Main main;
     public Study1Recorder study1Recorder;
     public AssignedTextController assignedTextController;
     public Canvas canvas;
     public Canvas footIcon;
     public GameObject leftFore, leftRear, rightFore, rightRear; // icon for foot
-    public GameObject background, CirclePrefab, FootDotPrefab, linePrefab;
-    public Transform FootDotContainer, LineContainer;
-    public Text enteredText, alphaCodes, state, clockTimer, hitRateText, correctionText;
+    public GameObject background, CirclePrefab, FootDotPrefab;
+    public Transform FootDotContainer;
+    public Text enteredText, alphaCodes, state, clockTimer, correctionText;
     public DataReceiver DataReceiver;
     public Text countDownText;
     private string alphaCode = ""; // use a number string to represent the line connection
     private int curr = 0, last = 0;
-    private GameObject dotObject, circleObject;
+    private GameObject dotObject;
 
     // check whether the foot is up
     private bool LeftForeisUp = false, LeftRearisUp = false, RightForeisUp = false, RightRearisUp = false;
@@ -28,24 +27,18 @@ public class FootTapController : MonoBehaviour
     // check whether the foot is tapping
     private bool LeftForeisTapping = false, LeftRearisTapping = false, RightForeisTapping = false, RightRearisTapping = false;
     private int[] hasFootIcon = new int[6]; // 0: no dot, 1: has dot-1, 2: has dot-2
-    private int[,] hasArrowIcon = new int[6, 6]; // 0: no arrow, 1: has arrow-1, 2: has arrow-2
-    private List<int> hitRateList = new List<int>();
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
-    private bool isSynchronous = false, countHit = false;
-    public enum State {
+    private bool isSynchronous = false;
+    public enum State
+    {
         Start,
         Idle,
         Tapping,
         Recognize
     }
     private State currState;
-
     private Vector3[] dotCoordinates = new Vector3[6];
-    private Vector3[] dotOffsets = new Vector3[9];
-    private int sortingOrder = 0, TapNumber = 0;
-    private float lineWidth = 0.65f, dotOffset = 25f;
-    private int hitCount = 0, missCount = 0;
-    private float hitRate = 0.0f;
+    private int TapNumber = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -56,23 +49,16 @@ public class FootTapController : MonoBehaviour
         // initialize the dot value and offset
         ResetDotsandArrows();
         InitDotCoordinates(ref dotCoordinates);
-        CloseFoot();
-
-        countDownText.gameObject.SetActive(true);
-        canvas.gameObject.SetActive(true);
-        assignedTextController.state = AssignedTextController.State.study;
         footIcon.gameObject.SetActive(false);
+        canvas.gameObject.SetActive(false);
+        assignedTextController.state = AssignedTextController.State.study;
         currState = State.Start;
     }
 
-    void CloseFoot()
+    void ResetDotsandArrows()
     {
-        footIcon.gameObject.SetActive(false);
-    }
-
-    void ResetDotsandArrows() {
-        for (int i=0; i<6; i++) {
-            for (int j=0; j<6; j++) hasArrowIcon[i, j] = 0;
+        for (int i=0; i<6; i++)
+        {
             hasFootIcon[i] = 0;
         }
         TapNumber = 0;
@@ -85,16 +71,6 @@ public class FootTapController : MonoBehaviour
         dotCoordinates[2] = new Vector3(0f, -100f, 0f);
         dotCoordinates[3] = new Vector3(100f, 0f, 0f);
         dotCoordinates[4] = new Vector3(100f, -100f, 0f);
-
-        // set the four offset of the dot
-        dotOffsets[1] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[2] = new Vector3(0f, -50f, 0f);
-        dotOffsets[3] = new Vector3(50f, 0f, 0f);
-        dotOffsets[4] = new Vector3(0f, -50f, 0f);
-        dotOffsets[5] = new Vector3(0f, 50f, 0f);
-        dotOffsets[6] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[7] = new Vector3(0f, 50f, 0f); 
-        dotOffsets[8] = new Vector3(50f, 0f, 0f);
     }
 
     // Update is called once per frame
@@ -103,7 +79,8 @@ public class FootTapController : MonoBehaviour
         DataReceiver.ReadInputToFootDataList();
 
         // if press space bar, then close the start button
-        if (currState == State.Start && Input.GetKeyDown(KeyCode.Space)) {
+        if (currState == State.Start && Input.GetKeyDown(KeyCode.Space))
+        {
             StartCoroutine(CountdownCoroutine());
         }
 
@@ -127,26 +104,20 @@ public class FootTapController : MonoBehaviour
                 break;
         }
 
-        hitRateText.text = hitRate.ToString("F2") + "%";
         clockTimer.text = recogTimer.ToString("F3"); // 3 digits
-        // syncTimer.text = (currClock - lastClock).ToString();
         Timer += Time.deltaTime;
         currClock = Timer;
 
         // if press r, then go to idle state
-        if (Input.GetKeyDown(KeyCode.R)) {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
             ChangeState(State.Idle);
-            hitCount = 0;
-            missCount = 0;
-            hitRate = 0.0f;
         }
     }
 
     void UpdateStartState() 
     {
         state.text = "Start";
-        // close the canvas
-        canvas.gameObject.SetActive(false);
     }
 
     void UpdateIdleState() 
@@ -165,7 +136,6 @@ public class FootTapController : MonoBehaviour
         alphaCode = "";
         
         ClearAllChildren(FootDotContainer);
-        ClearAllChildren(LineContainer);
         enteredText.text = "";
         isSynchronous = false;
 
@@ -188,7 +158,7 @@ public class FootTapController : MonoBehaviour
         // if there is a tapping, change the state to tapping
         TappingIconChecker();
         
-        // if there is a tapping then wait for 50 frames, then change the state to recognize
+        // if there is no more tapping in 1 second, then change the state to recognize
         if (recogTimer >= 1.0f){
             ChangeState(State.Recognize);
         }
@@ -200,63 +170,67 @@ public class FootTapController : MonoBehaviour
         state.text = "Recognize";
         
         enteredText.text = alphaCode;
-        if (isCorrect(alphaCode)) {
+        if (isCorrect(alphaCode))
+        {
             ShowCorrectionText("O");
             
-        } else {
+        }
+        else
+        {
             ShowCorrectionText("X");
         }
         
-        // stay 1 secxondin this state
+        // stay 1 second in this state
         recogTimer += Time.deltaTime;
-        if (recogTimer >= 1.5f) {
+        if (recogTimer >= 1.5f)
+        {
             // add the alpha code to the users actions
             study1Recorder.usersActions += alphaCode + ",";
             study1Recorder.shouldRecord = true;
             study1Recorder.assignedStroke = assignedTextController.assignedText.text; // todo: -> mp[]
             
             // if entered text == assigned text, then hasGivenWord = false
-            if (isCorrect(alphaCode)) {
-                hitRateList.Add(1);
-                hitCount++;
+            if (isCorrect(alphaCode))
+            {
                 assignedTextController.correctedCount++;
             }
             else 
             {
-                hitRateList.Add(0);
-                missCount++;
-
                 // add the wrong word into the wrong word list
                 assignedTextController.incorrectTrials.Add(assignedTextController.assignedText.text);
             }
             // turn to next given word
             assignedTextController.hasGivenWord = false;
-            
-            // calculate the hit rate
-            hitRate = (float)hitCount / (float)(hitCount + missCount) * 100.0f;
             ChangeState(State.Idle);
         }
     }
 
-    public void ChangeState(State newState) 
+    void ChangeState(State newState) 
     {
         currState = newState;
     }
 
-    void CheckFootisUp(ref bool isUp, ref bool isTapping, int newTap,ref GameObject img, int threshold=550) {
-        if (DataReceiver.footDataList[newTap] > threshold) {
+    void CheckFootisUp(ref bool isUp, ref bool isTapping, int newTap,ref GameObject img, int threshold=550)
+    {
+        if (DataReceiver.footDataList[newTap] > threshold)
+        {
             isUp = true;
             img.SetActive(false);
-        } else {
+        }
+        else
+        {
             isUp = false;
             img.SetActive(true);
         }
 
-        if (isUp && !isTapping) {
+        if (isUp && !isTapping)
+        {
             isTapping = true;
         }
-        if (!isUp && isTapping) { // then this moment is tapping (foot down)
-            UpdateCurr(ref curr, ref last, newTap, ref currClock, ref lastClock, ref isSynchronous);
+        if (!isUp && isTapping)
+        { 
+            // then this moment is tapping (foot down)
+            UpdateCurr(ref curr, ref last, newTap, ref currClock, ref lastClock);
             GenerateAlphaCode(curr, last);
             DrawWhiteDot(curr);
 
@@ -264,7 +238,8 @@ public class FootTapController : MonoBehaviour
         }
     }
 
-    void TappingIconChecker() {
+    void TappingIconChecker()
+    {
         CheckFootisUp(ref LeftForeisUp, ref LeftForeisTapping, 1, ref leftFore, 600);
         CheckFootisUp(ref LeftRearisUp, ref LeftRearisTapping, 2,ref leftRear, 600);
         CheckFootisUp(ref RightForeisUp, ref RightForeisTapping, 3, ref rightFore, 600);
@@ -278,7 +253,8 @@ public class FootTapController : MonoBehaviour
         }
     }
 
-    void UpdateCurr(ref int curr, ref int last, int nowTapping, ref float currClock, ref float lastClock, ref bool isSynchronous) {
+    void UpdateCurr(ref int curr, ref int last, int nowTapping, ref float currClock, ref float lastClock)
+    {
         last = curr;
         curr = nowTapping;
         
@@ -287,17 +263,26 @@ public class FootTapController : MonoBehaviour
         lastClock = currClock;
     }
 
-    void CheckisSynchronous() {
-        if (Mathf.Abs(currClock - lastClock) <= syncThreshold) isSynchronous = true;
-        else {
+    void CheckisSynchronous()
+    {
+        if (Mathf.Abs(currClock - lastClock) <= syncThreshold)
+        {
+            isSynchronous = true;
+        }
+        else
+        {
             isSynchronous = false;
             TapNumber++;
         }
     }
 
-    void GenerateAlphaCode(int end, int start) {
-        if (isSynchronous) {
-            if (start > end) { 
+    void GenerateAlphaCode(int end, int start)
+    {
+        if (isSynchronous)
+        {
+            // swap the start and end if start > end
+            if (start > end)
+            { 
                 int temp = start;
                 start = end;
                 end = temp;
@@ -312,6 +297,7 @@ public class FootTapController : MonoBehaviour
             alphaCode += end.ToString();
         }
     }
+    
     string RemoveLastCharacter(string str)
     {
         if (string.IsNullOrEmpty(str))
@@ -325,58 +311,60 @@ public class FootTapController : MonoBehaviour
     }
 
     // draw a dot in the foot dot container
-    void DrawWhiteDot(int curr) {
-        if (isSynchronous && hasFootIcon[curr] == TapNumber) return;
-        if (TapNumber == 2) 
+    void DrawWhiteDot(int curr)
+    {
+        if (isSynchronous && hasFootIcon[curr] == TapNumber)
         {
-            circleObject = Instantiate<GameObject>(CirclePrefab, FootDotContainer);
-            circleObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
-            hasFootIcon[curr]++;
-            circleObject.SetActive(true);
-        }
-        else if (TapNumber == 1) 
-        {
-            dotObject = Instantiate<GameObject>(FootDotPrefab, FootDotContainer);
-            dotObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
-            hasFootIcon[curr]++;
-            dotObject.SetActive(true);
+            Debug.Log(TapNumber);
+            return;
         }   
-        else if (TapNumber >= 3) 
+        if (TapNumber >= 3) 
         {
             ClearAllChildren(FootDotContainer);
-            if (circleObject != null) {
-                DestroyImmediate(circleObject);
+            if (dotObject != null)
+            {
+                DestroyImmediate(dotObject);
             }
         }
+        if (TapNumber == 1) dotObject = Instantiate<GameObject>(FootDotPrefab, FootDotContainer);
+        else if (TapNumber == 2) dotObject = Instantiate<GameObject>(CirclePrefab, FootDotContainer);
+
+        dotObject.transform.localPosition = dotCoordinates[curr];
+        hasFootIcon[curr]++;
+        dotObject.SetActive(true);
     }
 
-    void ClearAllChildren(Transform parent) {
-        foreach (Transform child in parent) {
+    void ClearAllChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
             DestroyImmediate(child.gameObject);
         }
     }
 
-    void ShowCorrectionText(string str) {
-        if (str == "O") {
+    void ShowCorrectionText(string str)
+    {
+        if (str == "O")
+        {
             correctionText.color = Color.black;
-        } else { // str == "X"
+        }
+        else
+        { // str == "X"
             correctionText.color = Color.red;
             study1Recorder.hasError = true;
         }
         correctionText.text = str;
     }
 
-    bool isCorrect(string enteredText) {
-        if (enteredText == assignedTextController.assignedText.text) {
-            return true;
-        } else {
-            return false;
-        }
+    bool isCorrect(string enteredText)
+    {
+        return enteredText == assignedTextController.assignedText.text;
     }
 
     IEnumerator CountdownCoroutine()
     {
-        for (int i = 3; i > 0; i--) {
+        for (int i = 3; i > 0; i--)
+        {
             countDownText.text = i.ToString();
             yield return new WaitForSeconds(1f);
         }
@@ -385,8 +373,8 @@ public class FootTapController : MonoBehaviour
         yield return new WaitForSeconds(1f);
         countDownText.gameObject.SetActive(false);
         canvas.gameObject.SetActive(true);
-        assignedTextController.state = AssignedTextController.State.study;
         footIcon.gameObject.SetActive(true);
+        assignedTextController.state = AssignedTextController.State.study;
         ChangeState(State.Idle);
     }
 }

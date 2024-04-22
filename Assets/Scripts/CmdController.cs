@@ -26,7 +26,6 @@ public class CmdController : MonoBehaviour
     // check whether the foot is tapping
     private bool LeftForeisTapping = false, LeftRearisTapping = false, RightForeisTapping = false, RightRearisTapping = false;
     private int[] hasFootIcon = new int[6]; // 0: no dot, 1: has dot-1, 2: has dot-2
-    private int[,] hasArrowIcon = new int[6, 6]; // 0: no arrow, 1: has arrow-1, 2: has arrow-2
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
     private bool isSynchronous = false;
     public enum State {
@@ -50,7 +49,6 @@ public class CmdController : MonoBehaviour
         // initialize the dot value and offset
         ResetDotsandArrows();
         InitDotCoordinates(ref dotCoordinates);
-        // CloseFoot();
         CreateDict();
 
         currState = State.Idle;
@@ -62,7 +60,7 @@ public class CmdController : MonoBehaviour
         alphaDict = new Dictionary<string, string>();
 
         // read D:\_xuan\UserStudy1\StudyTask\tasks_all.txt
-        string[] lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/tasks_all.txt");
+        string[] lines = File.ReadAllLines(main.dataReadPath + "tasks_all.txt");
         foreach (string line in lines)
         {
             string[] words = line.Split(',');
@@ -71,14 +69,9 @@ public class CmdController : MonoBehaviour
         Debug.Log(alphaDict.Count + " alpha codes are loaded.");
     }
 
-    void CloseFoot()
+    void ResetDotsandArrows()
     {
-        footIcon.gameObject.SetActive(false);
-    }
-
-    void ResetDotsandArrows() {
         for (int i=0; i<6; i++) {
-            for (int j=0; j<6; j++) hasArrowIcon[i, j] = 0;
             hasFootIcon[i] = 0;
         }
         TapNumber = 0;
@@ -108,11 +101,6 @@ public class CmdController : MonoBehaviour
     {
         DataReceiver.ReadInputToFootDataList();
 
-        // if press space bar, then close the start button
-        // if (currState == State.Start && Input.GetKeyDown(KeyCode.Space)) {
-        //     StartCoroutine(CountdownCoroutine());
-        // }
-
         // check the state
         switch (currState) 
         {
@@ -138,13 +126,6 @@ public class CmdController : MonoBehaviour
             ChangeState(State.Idle);
         }
     }
-
-    // void UpdateStartState() 
-    // {
-    //     state.text = "Start";
-    //     // close the canvas
-    //     canvas.gameObject.SetActive(false);
-    // }
 
     void UpdateIdleState() 
     {
@@ -198,17 +179,17 @@ public class CmdController : MonoBehaviour
         enteredText.text = alphaCode;
 
         // check if alphacode is inside the dictionary
-        if (alphaDict.ContainsKey(alphaCode)) {
-            // stay 1 second in this state
-            // background.SetActive(false);
-
-            if (showedIcon == false) {
+        if (alphaDict.ContainsKey(alphaCode))
+        {
+            if (showedIcon == false)
+            {
                 ShowIcon();
                 showedIcon = true;
             }
 
             recogTimer += Time.deltaTime;
-            if (recogTimer >= 2.0f) {
+            if (recogTimer >= 2.0f)
+            {
                 ClearAllChildren(IconContainer);
                 ClearAllChildren(FootDotContainer);
                 foreach (GameObject child in IconContainer)
@@ -218,7 +199,9 @@ public class CmdController : MonoBehaviour
                 IconBackground.SetActive(false);
                 ChangeState(State.Idle);
             }
-        } else {
+        }
+        else
+        {
             ClearAllChildren(IconContainer);
             ClearAllChildren(FootDotContainer);
             foreach (GameObject child in IconContainer)
@@ -259,19 +242,25 @@ public class CmdController : MonoBehaviour
         currState = newState;
     }
 
-    void CheckFootisUp(ref bool isUp, ref bool isTapping, int newTap,ref GameObject img, int threshold=550) {
-        if (DataReceiver.footDataList[newTap] > threshold) {
+    void CheckFootisUp(ref bool isUp, ref bool isTapping, int newTap,ref GameObject img, int threshold=550)
+    {
+        if (DataReceiver.footDataList[newTap] > threshold)
+        {
             isUp = true;
             img.SetActive(false);
-        } else {
+        }
+        else
+        {
             isUp = false;
             img.SetActive(true);
         }
 
-        if (isUp && !isTapping) {
+        if (isUp && !isTapping)
+        {
             isTapping = true;
         }
-        if (!isUp && isTapping) { // then this moment is tapping (foot down)
+        if (!isUp && isTapping)
+        { // then this moment is tapping (foot down)
             UpdateCurr(ref curr, ref last, newTap, ref currClock, ref lastClock, ref isSynchronous);
             GenerateAlphaCode(curr, last);
             DrawUserDot(curr);
@@ -280,7 +269,8 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    void DrawDot(int pos, int order = 0) {   
+    void DrawDot(int pos, int order = 0)
+    {   
         if (order == 2)
         {
             circleIconObject = Instantiate<GameObject>(CirclePrefab, IconContainer);
@@ -295,7 +285,8 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    void TappingIconChecker() {
+    void TappingIconChecker()
+    {
         CheckFootisUp(ref LeftForeisUp, ref LeftForeisTapping, 1, ref leftFore, 600);
         CheckFootisUp(ref LeftRearisUp, ref LeftRearisTapping, 2,ref leftRear, 600);
         CheckFootisUp(ref RightForeisUp, ref RightForeisTapping, 3, ref rightFore, 600);
@@ -309,7 +300,8 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    void UpdateCurr(ref int curr, ref int last, int nowTapping, ref float currClock, ref float lastClock, ref bool isSynchronous) {
+    void UpdateCurr(ref int curr, ref int last, int nowTapping, ref float currClock, ref float lastClock, ref bool isSynchronous)
+    {
         last = curr;
         curr = nowTapping;
         
@@ -318,7 +310,8 @@ public class CmdController : MonoBehaviour
         lastClock = currClock;
     }
 
-    void CheckisSynchronous() {
+    void CheckisSynchronous()
+    {
         if (Mathf.Abs(currClock - lastClock) <= syncThreshold) isSynchronous = true;
         else {
             isSynchronous = false;
@@ -326,9 +319,12 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    void GenerateAlphaCode(int end, int start) {
-        if (isSynchronous) {
-            if (start > end) { 
+    void GenerateAlphaCode(int end, int start)
+    {
+        if (isSynchronous)
+        {
+            if (start > end)
+            { 
                 int temp = start;
                 start = end;
                 end = temp;
@@ -356,7 +352,8 @@ public class CmdController : MonoBehaviour
     }
 
     // draw a dot in the foot dot container
-    void DrawUserDot(int curr) {
+    void DrawUserDot(int curr)
+    {
         if (isSynchronous && hasFootIcon[curr] == TapNumber) return;
         if (TapNumber == 2) 
         {
@@ -381,24 +378,11 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    void ClearAllChildren(Transform parent) {
-        foreach (Transform child in parent) {
+    void ClearAllChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
             DestroyImmediate(child.gameObject);
         }
     }
-
-    // IEnumerator CountdownCoroutine()
-    // {
-    //     for (int i = 3; i > 0; i--) {
-    //         countDownText.text = i.ToString();
-    //         yield return new WaitForSeconds(1f);
-    //     }
-
-    //     countDownText.text = "Start!";
-    //     yield return new WaitForSeconds(1f);
-    //     countDownText.gameObject.SetActive(false);
-    //     canvas.gameObject.SetActive(true);
-    //     footIcon.gameObject.SetActive(true);
-    //     ChangeState(State.Idle);
-    // }
 }

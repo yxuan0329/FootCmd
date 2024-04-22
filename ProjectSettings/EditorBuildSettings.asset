@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Mobile.unity
     guid: 940492290c166e24eae69d16c3443654
   - enabled: 1
-    path: Assets/Scenes/Oculus.unity
+    path: Assets/Scenes/study1.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
     path: Assets/Scenes/Questionnaire.unity

@@ -12,18 +12,19 @@ public class Study1Recorder : MonoBehaviour
     public int id = 1, round = 1;
     public int roundCorrects = 0, roundErrors = 0, roundTrials = 0;
     private string filePath, filePath2;
+
     // Start is called before the first frame update
     void Start()
     {
         if (Main.studyMode == Main.StudyMode.practice1)
         {
-            filePath = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/" + Main.userName + "_rawData_practice.csv";
-            filePath2 = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/" + Main.userName + "_rounds_practice.csv";
+            filePath = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rawData_practice.csv";
+            filePath2 = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rounds_practice.csv";
         }
         else
         {
-            filePath = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/" + Main.userName + "_rawData.csv";
-            filePath2 = "D:/_xuan/UserStudy1/StudyResult/" + Main.userName + "/" + Main.userName + "_rounds.csv";
+            filePath = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rawData.csv";
+            filePath2 = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rounds.csv";
         }
 
         string[] studyInfo = new string[2] {Main.userName, Main.studyMode.ToString()};
@@ -62,7 +63,8 @@ public class Study1Recorder : MonoBehaviour
             {
                 roundErrors++;
             }
-            else {
+            else
+            {
                 roundCorrects++;
             }
             roundTrials++;

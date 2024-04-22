@@ -14,14 +14,12 @@ public class AssignedTextController : MonoBehaviour
     public Study1Recorder study1Recorder;
     public Text assignedText, countDownText, breakText;
     public bool hasGivenWord = false;
-    public GameObject linePrefab, FootDotPrefab, CirclePrefab;
-    public Transform LineContainer, DotContainer;
+    public GameObject FootDotPrefab, CirclePrefab;
+    public Transform DotContainer;
     public List<string> incorrectTrials = new List<string>();
     public enum State { start, study, breaked, finished };
     public State state = State.start;
     private Vector3[] dotCoordinates = new Vector3[6];
-    private int sortingOrder = 0;
-    private float lineWidth = 0.65f, dotOffset = 25f;
     private int[] hasDotIcon = new int[6];  // 0 means no dot, 1 means has 1 dot, 2 means has 2 dots
     private int dataLineIndex = 0;
     private string[] lines;
@@ -39,11 +37,11 @@ public class AssignedTextController : MonoBehaviour
 
         if (main.studyMode == Main.StudyMode.study1)
         {
-            lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/tasks_" + main.userName + ".txt");
+            lines = File.ReadAllLines(main.dataReadPath + "tasks_" + main.userName + ".txt");
         }
         else
         {
-            lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/practice_" + main.userName + ".txt");
+            lines = File.ReadAllLines(main.dataReadPath + "practice_" + main.userName + ".txt");
             trials = 24;
         }
         
@@ -133,32 +131,13 @@ public class AssignedTextController : MonoBehaviour
         }
     }
 
-    void ChangeState(State newState) {
+    void ChangeState(State newState)
+    {
         state = newState;
     }
 
-    void DrawLine(int start, int end) {
-        // draw gradient line in line renderer
-        GameObject lineObject = Instantiate<GameObject>(linePrefab, LineContainer);
-        LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
-
-        lineRenderer.SetPosition(0, dotCoordinates[start]);
-        lineRenderer.SetPosition(1, dotCoordinates[end]);
-        
-        lineRenderer.sortingOrder = sortingOrder;
-        sortingOrder++;
-
-        lineRenderer.startColor = Color.black;
-        lineRenderer.endColor = Color.black;
-        
-        // width
-        lineRenderer.startWidth = lineWidth;
-        lineRenderer.endWidth = lineWidth;
-
-        lineObject.SetActive(true);
-    }
-
-    void DrawDot(int pos, int order = 0) {   
+    void DrawDot(int pos, int order = 0)
+    {   
         if (hasDotIcon[pos] == 1 || order == 2)
         {
             GameObject circleObject = Instantiate<GameObject>(CirclePrefab, DotContainer);
@@ -175,61 +154,64 @@ public class AssignedTextController : MonoBehaviour
         }
     }
 
-    void ClearAllChildren(Transform parent) {
-        foreach (Transform child in parent) {
+    void ClearAllChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
             Destroy(child.gameObject);
         }
     }
 
     void DoIncorrectTrials() {
-        // Debug.Log("Incorrect Trials: " + incorrectTrials.Count);
         // pop first element from incorrectTrials
         assignedAplhaCode = incorrectTrials[0];
         assignedDotPosition = incorrectTrials[0];
         assignedText.text = assignedAplhaCode; 
         incorrectTrials.RemoveAt(0);
 
-                    // clear all the children in the container
-            ClearAllChildren(DotContainer);
+        // clear all the children in the container
+        ClearAllChildren(DotContainer);
 
-            int order = 0;
-            int pos = 1, lastPos = 1;
-            for (int i=0; i<assignedDotPosition.Length; i++)
+        int order = 0;
+        int pos = 1, lastPos = 1;
+        for (int i=0; i<assignedDotPosition.Length; i++)
+        {
+            if (char.IsLetter(assignedDotPosition[i]))
             {
-                if (char.IsLetter(assignedDotPosition[i]))
-                {
-                    DrawDot((int)assignedDotPosition[i] - 96, order);
-                    pos = (int)assignedDotPosition[i] - 96;
-                }
-                else
-                {
-                    DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
-                    pos = int.Parse(assignedDotPosition[i].ToString());
-                }
+                DrawDot((int)assignedDotPosition[i] - 96, order);
+                pos = (int)assignedDotPosition[i] - 96;
+            }
+            else
+            {
+                DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
+                pos = int.Parse(assignedDotPosition[i].ToString());
+            }
 
-                lastPos = pos;
-            }              
-            hasGivenWord = true; 
+            lastPos = pos;
+        }              
+        hasGivenWord = true; 
     }
 
-    void StudyBreak() {
+    void StudyBreak()
+    {
         breakText.gameObject.SetActive(true);
         breakText.text = "Round " + round + " break!";
         canvas.gameObject.SetActive(false);
     }
 
-    void StudyFinished() {
+    void StudyFinished()
+    {
         study1Recorder.recordRound = true;
         Debug.Log("Study Finished!");
         canvas.gameObject.SetActive(false);
         countDownText.text = "Finished!";
         countDownText.gameObject.SetActive(true);
-        // EditorApplication.isPlaying = false;
     }
 
     IEnumerator CountdownCoroutine()
     {
-        for (int i = 3; i > 0; i--) {
+        for (int i = 3; i > 0; i--)
+        {
             countDownText.text = i.ToString();
             countDownText.gameObject.SetActive(true);
             yield return new WaitForSeconds(1f);
