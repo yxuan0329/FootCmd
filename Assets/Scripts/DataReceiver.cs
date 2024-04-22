@@ -60,7 +60,8 @@ public class DataReceiver : MonoBehaviour
             footDataList[index] = Input.GetKeyDown(key) ? 1000 : 0;
         }
 
-        if (Main.Mode == Main.DataReceiveMode.serialPort) {
+        if (Main.Mode == Main.DataReceiveMode.serialPort)
+        {
             footDataList[1] = OEfilter1.Filter((float)sgLeftFoot.footSGdata[0]);
             footDataList[2] = OEfilter2.Filter((float)sgLeftFoot.footSGdata[1]);
             footDataList[3] = OEfilter3.Filter((float)sgRightFoot.footSGdata[0]);

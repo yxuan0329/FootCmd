@@ -57,7 +57,8 @@ public class FootTapController : MonoBehaviour
 
     void ResetDotsandArrows()
     {
-        for (int i=0; i<6; i++) {
+        for (int i=0; i<6; i++)
+        {
             hasFootIcon[i] = 0;
         }
         TapNumber = 0;

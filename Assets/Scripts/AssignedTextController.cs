@@ -131,11 +131,13 @@ public class AssignedTextController : MonoBehaviour
         }
     }
 
-    void ChangeState(State newState) {
+    void ChangeState(State newState)
+    {
         state = newState;
     }
 
-    void DrawDot(int pos, int order = 0) {   
+    void DrawDot(int pos, int order = 0)
+    {   
         if (hasDotIcon[pos] == 1 || order == 2)
         {
             GameObject circleObject = Instantiate<GameObject>(CirclePrefab, DotContainer);
@@ -152,8 +154,10 @@ public class AssignedTextController : MonoBehaviour
         }
     }
 
-    void ClearAllChildren(Transform parent) {
-        foreach (Transform child in parent) {
+    void ClearAllChildren(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
             Destroy(child.gameObject);
         }
     }
@@ -188,13 +192,15 @@ public class AssignedTextController : MonoBehaviour
         hasGivenWord = true; 
     }
 
-    void StudyBreak() {
+    void StudyBreak()
+    {
         breakText.gameObject.SetActive(true);
         breakText.text = "Round " + round + " break!";
         canvas.gameObject.SetActive(false);
     }
 
-    void StudyFinished() {
+    void StudyFinished()
+    {
         study1Recorder.recordRound = true;
         Debug.Log("Study Finished!");
         canvas.gameObject.SetActive(false);
@@ -204,7 +210,8 @@ public class AssignedTextController : MonoBehaviour
 
     IEnumerator CountdownCoroutine()
     {
-        for (int i = 3; i > 0; i--) {
+        for (int i = 3; i > 0; i--)
+        {
             countDownText.text = i.ToString();
             countDownText.gameObject.SetActive(true);
             yield return new WaitForSeconds(1f);

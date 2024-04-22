@@ -63,7 +63,8 @@ public class Study1Recorder : MonoBehaviour
             {
                 roundErrors++;
             }
-            else {
+            else
+            {
                 roundCorrects++;
             }
             roundTrials++;
