@@ -37,11 +37,11 @@ public class AssignedTextController : MonoBehaviour
 
         if (main.studyMode == Main.StudyMode.study1)
         {
-            lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/tasks_" + main.userName + ".txt");
+            lines = File.ReadAllLines(main.dataReadPath + "tasks_" + main.userName + ".txt");
         }
         else
         {
-            lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/practice_" + main.userName + ".txt");
+            lines = File.ReadAllLines(main.dataReadPath + "practice_" + main.userName + ".txt");
             trials = 24;
         }
         

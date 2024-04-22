@@ -63,6 +63,7 @@ public class SGReceiver : MonoBehaviour
             catch(InvalidCastException e) 
             {
                 getCommandLine = new string[]{"0","0","0","0"}; // not work
+                throw e;
             }
         }
     }

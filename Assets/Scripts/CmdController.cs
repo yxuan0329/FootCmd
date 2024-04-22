@@ -50,7 +50,6 @@ public class CmdController : MonoBehaviour
         // initialize the dot value and offset
         ResetDotsandArrows();
         InitDotCoordinates(ref dotCoordinates);
-        // CloseFoot();
         CreateDict();
 
         currState = State.Idle;
@@ -62,18 +61,13 @@ public class CmdController : MonoBehaviour
         alphaDict = new Dictionary<string, string>();
 
         // read D:\_xuan\UserStudy1\StudyTask\tasks_all.txt
-        string[] lines = File.ReadAllLines("D:/_xuan/UserStudy1/StudyTask/tasks_all.txt");
+        string[] lines = File.ReadAllLines(main.dataReadPath + "tasks_all.txt");
         foreach (string line in lines)
         {
             string[] words = line.Split(',');
             alphaDict.Add(words[0], words[1]);
         }
         Debug.Log(alphaDict.Count + " alpha codes are loaded.");
-    }
-
-    void CloseFoot()
-    {
-        footIcon.gameObject.SetActive(false);
     }
 
     void ResetDotsandArrows() {
@@ -108,11 +102,6 @@ public class CmdController : MonoBehaviour
     {
         DataReceiver.ReadInputToFootDataList();
 
-        // if press space bar, then close the start button
-        // if (currState == State.Start && Input.GetKeyDown(KeyCode.Space)) {
-        //     StartCoroutine(CountdownCoroutine());
-        // }
-
         // check the state
         switch (currState) 
         {
@@ -138,13 +127,6 @@ public class CmdController : MonoBehaviour
             ChangeState(State.Idle);
         }
     }
-
-    // void UpdateStartState() 
-    // {
-    //     state.text = "Start";
-    //     // close the canvas
-    //     canvas.gameObject.SetActive(false);
-    // }
 
     void UpdateIdleState() 
     {
@@ -386,19 +368,4 @@ public class CmdController : MonoBehaviour
             DestroyImmediate(child.gameObject);
         }
     }
-
-    // IEnumerator CountdownCoroutine()
-    // {
-    //     for (int i = 3; i > 0; i--) {
-    //         countDownText.text = i.ToString();
-    //         yield return new WaitForSeconds(1f);
-    //     }
-
-    //     countDownText.text = "Start!";
-    //     yield return new WaitForSeconds(1f);
-    //     countDownText.gameObject.SetActive(false);
-    //     canvas.gameObject.SetActive(true);
-    //     footIcon.gameObject.SetActive(true);
-    //     ChangeState(State.Idle);
-    // }
 }
