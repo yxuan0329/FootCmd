@@ -1,7 +1,7 @@
 # Environment Setup
 1. clone the project
   ``` bash
-   $ git clone https://github.com/yxuan0329/FootCmd.git 
+  git clone https://github.com/yxuan0329/FootCmd.git 
    ```
 2. Setup the ``dataReadPath`` and ``dataWritePath`` in ``Main.cs``.
    - dataReadPath: The file path for reading commands. Download [here](https://drive.google.com/drive/folders/1jBCh_X1F9hX-Ctk3Iw5H8MWdTzm-BB0-?usp=sharing) for StudyTask folder to read the assigned commands.
