@@ -71,9 +71,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
-# image file
-*.png
-*.jpg
 
 # csv file
 *.csv
