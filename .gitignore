@@ -75,5 +75,3 @@ crashlytics-build.properties
 # csv file
 *.csv
 *.csv.meta
-*.txt
-*.txt.meta

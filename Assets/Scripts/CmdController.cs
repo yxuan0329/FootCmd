@@ -29,14 +29,12 @@ public class CmdController : MonoBehaviour
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
     private bool isSynchronous = false;
     public enum State {
-        Start,
         Idle,
         Tapping,
         Recognize
     }
     private State currState;
     private Vector3[] dotCoordinates = new Vector3[6];
-    private Vector3[] dotOffsets = new Vector3[9];
     private int TapNumber = 0;
     private Dictionary<string, string> alphaDict;
     
@@ -59,8 +57,8 @@ public class CmdController : MonoBehaviour
         // create Dict<string, string> for the alpha code
         alphaDict = new Dictionary<string, string>();
 
-        // read D:\_xuan\UserStudy1\StudyTask\tasks_all.txt
-        string[] lines = File.ReadAllLines(main.dataReadPath + "tasks_all.txt");
+        // read Assets/Files/tasks_all.txt
+        string[] lines = File.ReadAllLines("./Assets/Files/tasks_all.txt");
         foreach (string line in lines)
         {
             string[] words = line.Split(',');
@@ -84,16 +82,6 @@ public class CmdController : MonoBehaviour
         dotCoordinates[2] = new Vector3(0f, -100f, 0f);
         dotCoordinates[3] = new Vector3(100f, 0f, 0f);
         dotCoordinates[4] = new Vector3(100f, -100f, 0f);
-
-        // set the four offset of the dot
-        dotOffsets[1] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[2] = new Vector3(0f, -50f, 0f);
-        dotOffsets[3] = new Vector3(50f, 0f, 0f);
-        dotOffsets[4] = new Vector3(0f, -50f, 0f);
-        dotOffsets[5] = new Vector3(0f, 50f, 0f);
-        dotOffsets[6] = new Vector3(-50f, 0f, 0f);
-        dotOffsets[7] = new Vector3(0f, 50f, 0f); 
-        dotOffsets[8] = new Vector3(50f, 0f, 0f);
     }
 
     // Update is called once per frame
@@ -192,10 +180,6 @@ public class CmdController : MonoBehaviour
             {
                 ClearAllChildren(IconContainer);
                 ClearAllChildren(FootDotContainer);
-                foreach (GameObject child in IconContainer)
-                {
-                    Destroy(child);
-                }
                 IconBackground.SetActive(false);
                 ChangeState(State.Idle);
             }
@@ -204,44 +188,41 @@ public class CmdController : MonoBehaviour
         {
             ClearAllChildren(IconContainer);
             ClearAllChildren(FootDotContainer);
-            foreach (GameObject child in IconContainer)
-            {
-                Destroy(child);
-            }
             ChangeState(State.Idle);
         }
     }
 
+    // draw the icon based on the alpha code user just entered
     void ShowIcon()
     {
-        // draw the icon according to the alpha code on assigned text
-            string assignedDotPosition = alphaDict[alphaCode];
-            ClearAllChildren(IconContainer);
-            IconBackground.SetActive(true);
-            int order = 0;
-            int pos = 1, lastPos = 1;
-            for (int i=0; i<assignedDotPosition.Length; i++)
+        string assignedDotPosition = alphaDict[alphaCode];
+        ClearAllChildren(IconContainer);
+        IconBackground.SetActive(true);
+        int order = 0;
+        int pos = 1, lastPos = 1;
+        for (int i=0; i<assignedDotPosition.Length; i++)
+        {
+            if (char.IsLetter(assignedDotPosition[i]))
             {
-                if (char.IsLetter(assignedDotPosition[i]))
-                {
-                    DrawDot((int)assignedDotPosition[i] - 96, order);
-                    pos = (int)assignedDotPosition[i] - 96;
-                }
-                else
-                {
-                    DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
-                    pos = int.Parse(assignedDotPosition[i].ToString());
-                }
-
-                lastPos = pos;
+                DrawDot((int)assignedDotPosition[i] - 96, order);
+                pos = (int)assignedDotPosition[i] - 96;
             }
+            else
+            {
+                DrawDot(int.Parse(assignedDotPosition[i].ToString()), ++order);
+                pos = int.Parse(assignedDotPosition[i].ToString());
+            }
+
+            lastPos = pos;
+        }
     }
 
-    public void ChangeState(State newState) 
+    void ChangeState(State newState) 
     {
         currState = newState;
     }
 
+// Check if the foot is up and if the foot is tapping, modify the variables "isUp" and "isTapping"
     void CheckFootisUp(ref bool isUp, ref bool isTapping, int newTap,ref GameObject img, int threshold=550)
     {
         if (DataReceiver.footDataList[newTap] > threshold)
@@ -260,7 +241,8 @@ public class CmdController : MonoBehaviour
             isTapping = true;
         }
         if (!isUp && isTapping)
-        { // then this moment is tapping (foot down)
+        { 
+            // then this moment is tapping (foot down)
             UpdateCurr(ref curr, ref last, newTap, ref currClock, ref lastClock, ref isSynchronous);
             GenerateAlphaCode(curr, last);
             DrawUserDot(curr);
@@ -269,6 +251,7 @@ public class CmdController : MonoBehaviour
         }
     }
 
+    // draw a dot in the icon container
     void DrawDot(int pos, int order = 0)
     {   
         if (order == 2)
@@ -277,7 +260,7 @@ public class CmdController : MonoBehaviour
             circleIconObject.transform.localPosition = dotCoordinates[pos];
             hasDotIcon[pos]++;
         }
-        else
+        else // order == 1
         {
             dotIconObject = Instantiate<GameObject>(FootDotPrefab, IconContainer);
             dotIconObject.transform.localPosition = dotCoordinates[pos];
@@ -285,6 +268,7 @@ public class CmdController : MonoBehaviour
         }
     }
 
+    // check if the foot is tapping in each frame and change the state to tapping
     void TappingIconChecker()
     {
         CheckFootisUp(ref LeftForeisUp, ref LeftForeisTapping, 1, ref leftFore, 600);
@@ -300,6 +284,7 @@ public class CmdController : MonoBehaviour
         }
     }
 
+    // update the current and last tapping foot
     void UpdateCurr(ref int curr, ref int last, int nowTapping, ref float currClock, ref float lastClock, ref bool isSynchronous)
     {
         last = curr;
@@ -310,6 +295,7 @@ public class CmdController : MonoBehaviour
         lastClock = currClock;
     }
 
+    // check if the current tapping foot is synchronous with the last tapping foot
     void CheckisSynchronous()
     {
         if (Mathf.Abs(currClock - lastClock) <= syncThreshold) isSynchronous = true;
@@ -319,6 +305,7 @@ public class CmdController : MonoBehaviour
         }
     }
 
+    // generate the alpha code based on the current tapping foot
     void GenerateAlphaCode(int end, int start)
     {
         if (isSynchronous)
@@ -339,6 +326,8 @@ public class CmdController : MonoBehaviour
             alphaCode += end.ToString();
         }
     }
+
+    // remove the last character of the string
     string RemoveLastCharacter(string str)
     {
         if (string.IsNullOrEmpty(str))
@@ -351,24 +340,24 @@ public class CmdController : MonoBehaviour
         }
     }
 
-    // draw a dot in the foot dot container
+    // draw a dot in the foot dot container based on the current tapping foot
     void DrawUserDot(int curr)
     {
         if (isSynchronous && hasFootIcon[curr] == TapNumber) return;
-        if (TapNumber == 2) 
-        {
-            circleObject = Instantiate<GameObject>(CirclePrefab, FootDotContainer);
-            circleObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
-            hasFootIcon[curr]++;
-            circleObject.SetActive(true);
-        }
-        else if (TapNumber == 1) 
+        if (TapNumber == 1) 
         {
             dotObject = Instantiate<GameObject>(FootDotPrefab, FootDotContainer);
-            dotObject.transform.localPosition = dotCoordinates[curr]; // + hasFootIcon[curr] * new Vector3(dotOffset, 0f, 0f);
+            dotObject.transform.localPosition = dotCoordinates[curr]; 
             hasFootIcon[curr]++;
             dotObject.SetActive(true);
-        }   
+        }
+        else if (TapNumber == 2) 
+        {
+            circleObject = Instantiate<GameObject>(CirclePrefab, FootDotContainer);
+            circleObject.transform.localPosition = dotCoordinates[curr]; 
+            hasFootIcon[curr]++;
+            circleObject.SetActive(true);
+        } 
         else if (TapNumber >= 3) 
         {
             ClearAllChildren(FootDotContainer);
@@ -378,6 +367,7 @@ public class CmdController : MonoBehaviour
         }
     }
 
+    // clear all children of the parent
     void ClearAllChildren(Transform parent)
     {
         foreach (Transform child in parent)
