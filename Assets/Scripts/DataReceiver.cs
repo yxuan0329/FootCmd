@@ -14,43 +14,22 @@ public class DataReceiver : MonoBehaviour
     OneEuroFilter OEfilter2 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
     OneEuroFilter OEfilter3 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
     OneEuroFilter OEfilter4 = new OneEuroFilter(30.0f, 1.0f, 0.0f, 1.0f);
-    public Text studyModeText;
-    private string filePath;
 
     // Start is called before the first frame update
     void Start()
     {      
-        if (Main.Mode == Main.DataReceiveMode.serialPort) {
+        if (Main.Mode == Main.DataReceiveMode.serialPort)
+        {
             // bind the SG receiver with the tag
             sgLeftFoot = GameObject.FindGameObjectWithTag("leftFootData").GetComponent<SGReceiver>();
             sgRightFoot = GameObject.FindGameObjectWithTag("rightFootData").GetComponent<SGReceiver>();
-        }
-
-        if (Main.studyMode == Main.StudyMode.study1)
-        {
-            filePath = Main.dataWritePath + Main.userName + "/"+ Main.userName + "_frame.csv";
-        }
-        else
-        {
-            filePath = Main.dataWritePath + Main.userName + "/"+ Main.userName + "_frame_practice.csv";
-        }
+        }        
     }
 
     // Update is called once per frame
     void Update()
     {
-        float[] datainEachFrame = new float[9];
-        datainEachFrame[0] = Time.time;
-        datainEachFrame[1] = footDataList[1];
-        datainEachFrame[2] = footDataList[2];
-        datainEachFrame[3] = footDataList[3];
-        datainEachFrame[4] = footDataList[4];
-        datainEachFrame[5] = (float)sgLeftFoot.footSGdata[0];
-        datainEachFrame[6] = (float)sgLeftFoot.footSGdata[1];
-        datainEachFrame[7] = (float)sgRightFoot.footSGdata[0];
-        datainEachFrame[8] = (float)sgRightFoot.footSGdata[1];
-        string newLine = string.Join(",", datainEachFrame);
-        System.IO.File.AppendAllText(filePath, newLine + "\n");
+
     }
 
     public void ReadInputToFootDataList()

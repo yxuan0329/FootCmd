@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Study1Recorder : MonoBehaviour
 {
     public Main Main;
     public AssignedTextController assignedTextController;
+    public static bool RecordResult = false;
     public bool shouldRecord = false, hasError = false, recordRound = false;
     public float totalTime = 0.0f, executionTime = 0.0f, thinkingTime = 0.0f, roundTime = 0.0f;
     public string assignedStroke = "", usersActions = "";
@@ -16,33 +18,54 @@ public class Study1Recorder : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (Main.studyMode == Main.StudyMode.practice1)
+        // check if the study scene is loaded
+        if (SceneManager.GetSceneByName("Study1").isLoaded)
         {
-            filePath = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rawData_practice.csv";
-            filePath2 = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rounds_practice.csv";
+            RecordResult = true;
+        }
+
+        // if the study scene is not loaded, do not record the data
+        if (RecordResult == false)
+        {
+            return;
         }
         else
         {
-            filePath = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rawData.csv";
-            filePath2 = Main.dataWritePath + Main.userName + "/" + Main.userName + "_rounds.csv";
+            if (Main.studyMode == Main.StudyMode.practice1)
+            {
+                filePath = Main.dataWritePath + Main.userName + "_rawData_practice.csv";
+                filePath2 = Main.dataWritePath + Main.userName + "_rounds_practice.csv";
+            }
+            else
+            {
+                filePath = Main.dataWritePath + Main.userName + "_rawData.csv";
+                filePath2 = Main.dataWritePath + Main.userName + "_rounds.csv";
+            }
+
+            string[] studyInfo = new string[2] {Main.userName, Main.studyMode.ToString()};
+            string studyInfoString = string.Join(",", studyInfo);
+            System.IO.File.WriteAllText(filePath, studyInfoString + "\n");
+            
+            string[] columnNames = new string[7] {"id", "stroke", "totalTime", "thinkingTime", "executionTime", "error", "usersActions,"};
+            string columnNamesString = string.Join(",", columnNames);
+            System.IO.File.WriteAllText(filePath, columnNamesString + "\n");
+
+            string[] columnNames2 = new string[5] {"Round", "CompletionTime", "Tasks", "Correct", "Incorrect,"};
+            string columnNamesString2 = string.Join(",", columnNames2);
+            System.IO.File.WriteAllText(filePath2, columnNamesString2 + "\n");
         }
-
-        string[] studyInfo = new string[2] {Main.userName, Main.studyMode.ToString()};
-        string studyInfoString = string.Join(",", studyInfo);
-        System.IO.File.WriteAllText(filePath, studyInfoString + "\n");
         
-        string[] columnNames = new string[7] {"id", "stroke", "totalTime", "thinkingTime", "executionTime", "error", "usersActions,"};
-        string columnNamesString = string.Join(",", columnNames);
-        System.IO.File.WriteAllText(filePath, columnNamesString + "\n");
-
-        string[] columnNames2 = new string[5] {"Round", "CompletionTime", "Tasks", "Correct", "Incorrect,"};
-        string columnNamesString2 = string.Join(",", columnNames2);
-        System.IO.File.WriteAllText(filePath2, columnNamesString2 + "\n");
     }
 
     // Update is called once per frame
     void Update()
     {
+        // check if the study scene is loaded
+        if (RecordResult == false)
+        {
+            return;
+        }
+        
         // start from line 2, because line 1 is the column header
         // write the data to the file
         if (shouldRecord)

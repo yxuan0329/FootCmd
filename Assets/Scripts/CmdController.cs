@@ -29,7 +29,6 @@ public class CmdController : MonoBehaviour
     private float Timer = 0.0f, recogTimer = 0.0f, currClock = 0.0f, lastClock = 0.0f, syncThreshold = 0.1f; // timer 
     private bool isSynchronous = false;
     public enum State {
-        Start,
         Idle,
         Tapping,
         Recognize
@@ -59,8 +58,8 @@ public class CmdController : MonoBehaviour
         // create Dict<string, string> for the alpha code
         alphaDict = new Dictionary<string, string>();
 
-        // read D:\_xuan\UserStudy1\StudyTask\tasks_all.txt
-        string[] lines = File.ReadAllLines(main.dataReadPath + "tasks_all.txt");
+        // read Assets/Files/tasks_all.txt
+        string[] lines = File.ReadAllLines("./Assets/Files/tasks_all.txt");
         foreach (string line in lines)
         {
             string[] words = line.Split(',');
@@ -192,10 +191,6 @@ public class CmdController : MonoBehaviour
             {
                 ClearAllChildren(IconContainer);
                 ClearAllChildren(FootDotContainer);
-                foreach (GameObject child in IconContainer)
-                {
-                    Destroy(child);
-                }
                 IconBackground.SetActive(false);
                 ChangeState(State.Idle);
             }
@@ -204,10 +199,6 @@ public class CmdController : MonoBehaviour
         {
             ClearAllChildren(IconContainer);
             ClearAllChildren(FootDotContainer);
-            foreach (GameObject child in IconContainer)
-            {
-                Destroy(child);
-            }
             ChangeState(State.Idle);
         }
     }
