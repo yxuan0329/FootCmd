@@ -4,7 +4,7 @@
    $ git clone https://github.com/yxuan0329/FootCmd.git 
    ```
 2. Setup the ``dataReadPath`` and ``dataWritePath`` in ``Main.cs``.
-   - dataReadPath: The file path for reading commands. Download [here](https://drive.google.com/drive/folders/1SjdnZ_SQujV934D3puRcmUeQoZlC5MSC?usp=sharing) for StudyTask folder to read the assigned commands.
+   - dataReadPath: The file path for reading commands. Download [here](https://drive.google.com/drive/folders/1jBCh_X1F9hX-Ctk3Iw5H8MWdTzm-BB0-?usp=sharing) for StudyTask folder to read the assigned commands.
    - dataWritePath: The file path for recording study results. Set this path out of unity project is suggested.
 3. Unity version: 2019.4.38f1, no Oculus environment yet.
 
