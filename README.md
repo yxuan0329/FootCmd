@@ -9,15 +9,17 @@
 3. Unity version: 2019.4.38f1, no Oculus environment yet.
 
 # Unity Scenes
-1. Study1: The scene used in user study
-2. DemowithChart: Demo command input with charts
-3. Mobile [unused]
+1. ``Study1``: The scene used in user study
+2. ``DemowithChart``: Demo command input with charts
+3. ``Mobile``: Mobile app for input commands. (No longer maintained)
 
 # Start the Code
-1. Select the scene in folder "Scene"
+1. Select the scene in folder "Scenes".
 2. Connect the development board on the shoes with the compututer.
 3. In Unity Hierarchy, go to Main function > ``Left Foot Data``, ``right Foot Data``, check the ``COM number``.
    (If the connection is lost, keyboard mode will be activated, press number 7,1 for left foot and number 9,3 for right foot.)
 5. Play the scene.
+   - In Scene ``Study1``, press ``space`` key to start the study. Between each round, press ``L`` key to continue.
+   - In Scene ``DemowithChart``, you can just start tapping to input commands at any time.
 
    
