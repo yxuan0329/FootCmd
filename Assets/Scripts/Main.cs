@@ -18,8 +18,8 @@ public class Main : MonoBehaviour
         study1,
     }
     public StudyMode studyMode;
-    public string dataReadPath = "D:/_xuan/UserStudy1/StudyTask/";
-    public string dataWritePath = "D:/_xuan/UserStudy1/StudyResult/";
+    public string dataReadPath = "D:/_xuan/UserStudy1/StudyTask/"; // TODO: change your path
+    public string dataWritePath = "D:/_xuan/UserStudy1/StudyResult/"; //TODO: change your path
 
     // Start is called before the first frame update
     void Start()
