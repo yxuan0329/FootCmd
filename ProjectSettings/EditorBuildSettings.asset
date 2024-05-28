@@ -8,12 +8,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Mobile.unity
     guid: 940492290c166e24eae69d16c3443654
-  - enabled: 1
-    path: Assets/Scenes/study1.unity
+  - enabled: 0
+    path: Assets/Scenes/Study1.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/Questionnaire.unity
-    guid: d465142d5b99af947897155b68a5d517
+    path: Assets/Scenes/DemowithChart.unity
+    guid: 33065b56cb945524bb7eb0d706b727a8
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 1218aeadbd0eff847a58cfb115774723,
       type: 2}

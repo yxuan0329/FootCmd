@@ -25,6 +25,8 @@ TagManager:
   - QTText
   - QTTextInput
   - QTVideo
+  - leftBLEFootData
+  - rightBLEFootData
   layers:
   - Default
   - TransparentFX
