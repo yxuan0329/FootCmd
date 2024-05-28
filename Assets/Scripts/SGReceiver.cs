@@ -30,7 +30,7 @@ public class SGReceiver : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.Log("Serial port open failed: " + e.Message);
-            SwitchToKeyboardMode();
+            // SwitchToKeyboardMode();
         }
 
         for (int i=0; i<2; i++)

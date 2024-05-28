@@ -9,7 +9,8 @@ public class Main : MonoBehaviour
 {
     public enum DataReceiveMode {
         keyboard,
-        serialPort
+        serialPort,
+        bluetooth,
     }
     public DataReceiveMode Mode;
     public string userName = "user0";
@@ -18,8 +19,8 @@ public class Main : MonoBehaviour
         study1,
     }
     public StudyMode studyMode;
-    public string dataReadPath = "D:/_xuan/StudyTask/"; // TODO: change your path
-    public string dataWritePath = "D:/_xuan/StudyResult/"; //TODO: change your path
+    public string dataReadPath; // TODO: change path in the inspector
+    public string dataWritePath; //TODO: change path in the inspector
 
     // Start is called before the first frame update
     void Start()
