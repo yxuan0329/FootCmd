@@ -2,8 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 using System;
 using System.IO;
+using System.Linq;
+
+[System.Serializable]
+public class UpdateCMD : UnityEvent<string>
+{
+}
 
 public class CmdController : MonoBehaviour
 {
@@ -31,23 +38,32 @@ public class CmdController : MonoBehaviour
     public enum State {
         Idle,
         Tapping,
-        Recognize
+        Recognize,
+        TappingWithRecognize
     }
     private State currState;
     private Vector3[] dotCoordinates = new Vector3[6];
     private int TapNumber = 0;
     private Dictionary<string, string> alphaDict;
-    
+    // Add by Ray
+    public float recognizeTime = 1.0f;
+    public float cmdInterval = 0.25f;
+    private bool hasBeenCalled = false;
+    public UpdateCMD updateCMD;
+
     // Start is called before the first frame update
     void Start()
     {
         Timer = 0.0f;
         recogTimer = 0.0f;
 
+        // cmdFunction = this.GetComponent<CmdFunction>();
+
         // initialize the dot value and offset
         ResetDotsandArrows();
         InitDotCoordinates(ref dotCoordinates);
         CreateDict();
+        // CreateFuncDict();
 
         currState = State.Idle;
     }
@@ -65,7 +81,10 @@ public class CmdController : MonoBehaviour
             alphaDict.Add(words[0], words[1]);
         }
         Debug.Log(alphaDict.Count + " alpha codes are loaded.");
+
+
     }
+    
 
     void ResetDotsandArrows()
     {
@@ -100,6 +119,9 @@ public class CmdController : MonoBehaviour
                 break;
             case State.Recognize:
                 UpdateRecogState();
+                break;
+            case State.TappingWithRecognize:
+                UpdateTappingWithRecognizeState();
                 break;
             default:
                 Debug.LogError("Unknown state!");
@@ -156,7 +178,7 @@ public class CmdController : MonoBehaviour
         TappingIconChecker();
         
         // if there is a tapping then wait for 50 frames, then change the state to recognize
-        if (recogTimer >= 1.0f){
+        if (recogTimer >= recognizeTime){
             ChangeState(State.Recognize);
         }
     }
@@ -175,13 +197,23 @@ public class CmdController : MonoBehaviour
                 showedIcon = true;
             }
 
+            // call the function map to cmd
+            if(hasBeenCalled == false){
+                //funcDict[alphaCode]();
+                updateCMD.Invoke(alphaCode);
+                hasBeenCalled = true;
+            }
+
             recogTimer += Time.deltaTime;
-            if (recogTimer >= 2.0f)
+
+            // change to Idle state
+            if (recogTimer >= recognizeTime + cmdInterval)
             {
                 ClearAllChildren(IconContainer);
                 ClearAllChildren(FootDotContainer);
                 IconBackground.SetActive(false);
                 ChangeState(State.Idle);
+                hasBeenCalled = false;
             }
         }
         else
@@ -191,6 +223,150 @@ public class CmdController : MonoBehaviour
             ChangeState(State.Idle);
         }
     }
+
+    void UpdateTappingWithRecognizeState() 
+    {
+        background.SetActive(true);
+        state.text = "TappingWithRecognize";
+        recogTimer += Time.deltaTime;
+
+        // add a new arrow according to the tapping
+        alphaCodes.text = alphaCode;
+
+        // if there is a tapping, change the state to tapping
+        TappingIconChecker();
+        ParseAlphacode_v3();
+        
+        // if there is a tapping then wait for 50 frames, then change the state to recognize
+        if (recogTimer >= recognizeTime){
+            if(alphaCode.Length > 0){
+                Debug.Log("Error cmd: " + alphaCode);
+                updateCMD.Invoke("other");
+                alphaCode = "";
+            }
+            ChangeState(State.Idle);
+        }
+    }
+
+    void ParseAlphacode(){
+        string[] substringsToCheck = { "a", "b", "c", "d" };
+        if(alphaCode.Length > 3){
+            Debug.Log(alphaCode);
+            if(alphaDict.ContainsKey(alphaCode)){
+                updateCMD.Invoke(alphaCode);
+                alphaCode = "";
+            }
+            else{
+                updateCMD.Invoke("other");
+                alphaCode = "";
+            }
+        }
+        else if(alphaCode.Length > 2 && !alphaCode.Contains("2d2") && !alphaCode.Contains("2d4")){
+            Debug.Log(alphaCode);
+            if(alphaDict.ContainsKey(alphaCode)){
+                updateCMD.Invoke(alphaCode);
+                alphaCode = "";
+            }
+            else{
+                updateCMD.Invoke("other");
+                alphaCode = "";
+            }
+        }
+        else if(alphaCode.Length == 2 && !substringsToCheck.Any(alphaCode.Contains)){
+            Debug.Log(alphaCode);
+            if(alphaDict.ContainsKey(alphaCode)){
+                updateCMD.Invoke(alphaCode);
+                alphaCode = "";
+            }
+            else{
+                updateCMD.Invoke("other");
+                alphaCode = "";
+            }
+        }
+        else{
+            return;
+        }
+    }
+    // void ParseAlphacode_v2(){
+    //     int count = 2;
+    //     if(alphaCode.Length > 4){
+    //         alphaCode = "";
+    //         ChangeState(State.Idle);
+    //         return;
+    //     }
+    //     while(alphaCode.Length >= 2){
+    //         Debug.Log("Count: " + count.ToString());
+    //         Debug.Log(alphaCode);
+    //         // wrong cmd
+    //         if(count > alphaCode.Length){
+    //             Debug.Log(recogTimer);
+    //             if (recogTimer >= recognizeTime){
+    //                 Debug.Log("Wrong cmd: " + alphaCode);
+    //                 updateCMD.Invoke("other");
+    //                 alphaCode = "";
+    //                 count = 2;
+    //                 recogTimer = 0;
+    //             }
+    //             return;
+    //         }
+    //         // check correct cmd
+    //         else if(alphaDict.ContainsKey(alphaCode.Substring(0,count))){
+    //             updateCMD.Invoke(alphaCode.Substring(0,count));
+    //             alphaCode = alphaCode.Substring(count);
+    //             count = 2;
+    //             recogTimer = 0;
+    //         }
+    //         else{
+    //             count++;
+    //         }
+    //     }
+    // }
+
+    void ParseAlphacode_v3(){
+        int count = 2;
+        if(alphaCode.Length > 4){
+            alphaCode = "";
+            ChangeState(State.Idle);
+            return;
+        }
+        while(alphaCode.Length >= 2){
+            //Debug.Log("Count: " + count.ToString());
+            //Debug.Log(alphaCode);
+            // wrong cmd time out
+            if(count > alphaCode.Length){
+                //Debug.Log(recogTimer);
+                if (recogTimer >= recognizeTime){
+                    Debug.Log("Wrong cmd: " + alphaCode);
+                    updateCMD.Invoke("other");
+                    alphaCode = "";
+                    count = 2;
+                    recogTimer = 0;
+                }
+                return;
+            }
+            // check correct cmd
+            else if(alphaDict.ContainsKey(alphaCode.Substring(0,count))){
+                updateCMD.Invoke(alphaCode.Substring(0,count));
+                alphaCode = alphaCode.Substring(count);
+                count = 2;
+                recogTimer = 0;
+            }
+            // length = 2, but not include 'd', or alphaCode == 14, 23, 32, 41  // (alphaCode == "14" || alphaCode == "23" || alphaCode == "32" || alphaCode == "41" || alphaCode.Contains('a') || alphaCode.Contains('b') || alphaCode.Contains('c'))
+            else if(alphaCode.Length == 2 && count == 2 && alphaCode != "2d"){
+                Debug.Log("Wrong cmd: " + alphaCode);
+                updateCMD.Invoke("other");
+                alphaCode = "";
+                count = 2;
+                recogTimer = 0;
+                ChangeState(State.Idle);
+                return;
+            }
+            else{
+                count++;
+            }
+        }
+    }
+
 
     // draw the icon based on the alpha code user just entered
     void ShowIcon()
@@ -280,7 +456,8 @@ public class CmdController : MonoBehaviour
         if (LeftForeisUp || LeftRearisUp || RightForeisUp || RightRearisUp)
         {
             recogTimer = 0.0f;
-            ChangeState(State.Tapping);
+            //ChangeState(State.Tapping);
+            ChangeState(State.TappingWithRecognize);
         }
     }
 

@@ -75,7 +75,13 @@ public class SGReceiver : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
-        MainSerialPort.Close();      
-        myThread.Abort();   
+        if (MainSerialPort != null && MainSerialPort.IsOpen)
+        {
+            MainSerialPort.Close();
+        }
+        if (myThread != null && myThread.IsAlive)
+        {
+            myThread.Abort();
+        }   
     }
 }
